@@ -25,4 +25,5 @@ dist-ssr
 
 # Server stuff
 *data
+!/src/client/data
 .env
