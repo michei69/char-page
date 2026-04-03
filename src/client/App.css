@@ -1,0 +1,103 @@
+.selected {
+  background-color: #4f55c9 !important;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--dark-background);
+  border-radius: 24px;
+  width: 100%;
+  min-width: 100%;
+  overflow: hidden;
+}
+
+.padded {
+  padding-left: 25vw;
+  padding-right: 25vw;
+}
+
+img.thumb {
+  width: 100%;
+  height: 16rem;
+}
+
+img.pfp {
+  object-fit: cover;
+  object-position: center;
+  aspect-ratio: 1/1;
+  border: solid 4px var(--dark-background);
+}
+
+.dark-background {
+  background-color: var(--dark-background);
+}
+
+.darker-background {
+  background-color: var(--darker-background);
+}
+
+.accent-border {
+  border: solid 2px var(--accent-color)
+}
+
+.dark-accent-border {
+  border: solid 2px var(--darker-accent-color)
+}
+
+.darker-accent-border {
+  border: solid 2px var(--even-darker-accent-color);
+}
+
+.dark-accent-background {
+  background-color: var(--darker-accent-color);
+}
+
+.darker-accent-background {
+  background-color: var(--even-darker-accent-color);
+}
+
+
+.markdown-container h1 {
+  font-size: 2rem;
+}
+
+.markdown-container h2 {
+  font-size: 1.5rem;
+}
+
+.markdown-container h3 {
+  font-size: 1.17rem;
+}
+
+.markdown-container h4 {
+  font-size: 1rem;
+}
+
+.markdown-container h5 {
+  font-size: 0.83rem;
+}
+
+.markdown-container h6 {
+  font-size: 0.67rem;
+}
+
+.correct-answer {
+  background-color: green !important;
+}
+
+.wrong-answer {
+  background-color: red !important;
+}
+
+#croppie img {
+  user-select: none;
+}

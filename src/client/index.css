@@ -1,0 +1,141 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --accent-color: #646cff;
+  --darker-accent-color: #535bf2;
+  --even-darker-accent-color: #353a94;
+  --lighter-accent-color: #747bff;
+  --dark-background: #12121266;
+  --darker-background: #02020266;
+}
+
+.accent-text {
+  color: var(--accent-color);
+}
+
+.lighter-accent {
+  color: var(--lighter-accent-color)
+}
+
+.darker-accent {
+  color: var(--darker-accent-color)
+}
+
+a {
+  font-weight: 500;
+  color: var(--accent-color);
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: var(--darker-accent-color);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+  /* place-items: center; */
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.cute-border-visible {
+  border: 1px solid var(--accent-color);
+}
+
+.cute-border {
+  border: 1px solid transparent;
+  transition: border-color 0.25s;
+}
+
+.cute-border:hover {
+  border-color: var(--accent-color);
+}
+
+.card {
+  /* padding: 0.6em; */
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+}
+
+.SwitchRoot {
+  all: unset;
+  cursor: pointer;
+  width: 50px;
+  height: 22px;
+  background-color: black;
+  border-radius: 9999px;
+  margin-top: 2px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  &:focus {
+    box-shadow: 0 0 0 2px black;
+  }
+
+  &[data-state="checked"] {
+    background-color: #646cff;
+  }
+}
+
+.SwitchThumb {
+  all: unset;
+  display: block;
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px var(--black-a7);
+  transition: transform .15s;
+  transform: translateX(2px);
+  will-change: transform;
+
+  &[data-state="checked"] {
+    transform: translateX(30px);
+  }
+}
+
+button,
+.link-button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover,
+.link-button:hover {
+  border-color: var(--accent-color);
+}
+
+button:focus,
+button:focus-visible,
+.link-button:focus,
+.link-button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+option {
+  color: black;
+}
