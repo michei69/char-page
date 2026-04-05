@@ -2,8 +2,14 @@ import Elysia, { t } from "elysia";
 import DataFolder from "./data";
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
+import { Agent } from "https";
 
 const dataFolder = new DataFolder("data", "backup-data")
+
+const insecureAgent = new Agent({
+    rejectUnauthorized: false
+});
+
 const s3client = new S3Client({
     region: process.env["S3_REGION"],
     credentials: {
@@ -11,7 +17,11 @@ const s3client = new S3Client({
         secretAccessKey: process.env["S3_SECRET_ACCESS_KEY"] || "",
     },
     forcePathStyle: true,
-    endpoint: process.env["S3_ENDPOINT"]
+    endpoint: process.env["S3_ENDPOINT"],
+    requestHandler: {
+        httpAgent: insecureAgent,
+        httpsAgent: insecureAgent
+    }
 })
 
 const uploadFile = async (key: string, body: Buffer | Uint8Array | Blob | string | ReadableStream) => {
