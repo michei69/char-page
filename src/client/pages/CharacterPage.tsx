@@ -40,12 +40,11 @@ export default function CharacterPage() {
                 );
                 console.log(char);
                 if (char.stats) {
-                    const temp = Object.entries(char.stats).sort(
+                    char.stats.sort(
                         (a, b) =>
-                            (a[1].type === "TEXT" ? 1 : -1) -
-                            (b[1].type === "TEXT" ? 1 : -1),
+                            (a.type === "TEXT" ? 1 : -1) -
+                            (b.type === "TEXT" ? 1 : -1),
                     );
-                    char.stats = Object.fromEntries(temp);
                 }
                 for (const ch of char.relations) {
                     fetch(`${API_BASE_URL}/api/character/${ch.charId}`)
@@ -126,41 +125,39 @@ export default function CharacterPage() {
                 </div>
             </section>
 
-            {char.traits && Object.keys(char.traits).length > 0 && (
+            {char.traits && char.traits.length > 0 && (
                 <CharSection title="About">
                     <div className="flex flex-col justify-center items-center gap-2 mt-2 p-4 pt-0 w-full">
-                        {Object.entries(char.traits).map(
-                            ([key, value], idx) => (
-                                <CharTrait
-                                    key={idx}
-                                    traitName={key}
-                                    traitValue={value}
-                                />
-                            ),
-                        )}
+                        {char.traits.map((trait, idx) => (
+                            <CharTrait
+                                key={idx}
+                                traitName={trait.label}
+                                traitValue={trait.text}
+                            />
+                        ))}
                     </div>
                 </CharSection>
             )}
 
-            {char.stats && Object.keys(char.stats).length > 0 && (
+            {char.stats && char.stats.length > 0 && (
                 <CharSection title="Stats">
                     <div className="flex flex-col justify-center items-center gap-2 mt-2 p-4 pt-0 w-full">
-                        {Object.entries(char.stats).map(([key, value], idx) => {
-                            if (value.type == "TEXT")
+                        {char.stats.map((stat, idx) => {
+                            if (stat.type == "TEXT")
                                 return (
                                     <CharTrait
                                         key={idx}
-                                        traitName={key}
-                                        traitValue={value.value as string}
+                                        traitName={stat.label}
+                                        traitValue={stat.value as string}
                                     />
                                 );
                             return (
                                 <CharProgress
                                     key={idx}
-                                    statName={key}
-                                    statValue={value.value as number}
-                                    min={value.min}
-                                    max={value.max}
+                                    statName={stat.label}
+                                    statValue={stat.value as number}
+                                    min={stat.min}
+                                    max={stat.max}
                                 />
                             );
                         })}
@@ -168,42 +165,38 @@ export default function CharacterPage() {
                 </CharSection>
             )}
 
-            {char.attributes && Object.keys(char.attributes).length > 0 && (
+            {char.attributes && char.attributes.length > 0 && (
                 <CharSection title="Attribute Sliders" className="p-2">
                     <div className="flex flex-col justify-center items-center gap-4 mt-2 p-4 pt-0 w-full">
-                        {Object.entries(char.attributes).map(
-                            ([key, value], idx) => (
-                                <CharAttributeSlider
-                                    key={idx}
-                                    name={key}
-                                    leftSide={value.leftSide}
-                                    rightSide={value.rightSide}
-                                    value={value.value}
-                                    max={value.value < 10 ? 10 : 100}
-                                />
-                            ),
-                        )}
+                        {char.attributes.map((attr, idx) => (
+                            <CharAttributeSlider
+                                key={idx}
+                                name={attr.label}
+                                leftSide={attr.leftSide}
+                                rightSide={attr.rightSide}
+                                value={attr.value}
+                                max={attr.value < 10 ? 10 : 100}
+                            />
+                        ))}
                     </div>
                 </CharSection>
             )}
 
-            {char.alignments && Object.keys(char.alignments).length > 0 && (
+            {char.alignments && char.alignments.length > 0 && (
                 <CharSection title="Alignment Charts">
                     <div className="flex flex-col justify-center items-center gap-2 mt-2 p-4 pt-0 w-full">
-                        {Object.entries(char.alignments).map(
-                            ([key, value], idx) => (
-                                <CharAlignment
-                                    key={idx}
-                                    name={key}
-                                    leftSide={value.left}
-                                    rightSide={value.right}
-                                    topSide={value.top}
-                                    bottomSide={value.bottom}
-                                    x={value.x}
-                                    y={value.y}
-                                />
-                            ),
-                        )}
+                        {char.alignments.map((alignment, idx) => (
+                            <CharAlignment
+                                key={idx}
+                                name={alignment.label}
+                                leftSide={alignment.left}
+                                rightSide={alignment.right}
+                                topSide={alignment.top}
+                                bottomSide={alignment.bottom}
+                                x={alignment.x}
+                                y={alignment.y}
+                            />
+                        ))}
                     </div>
                 </CharSection>
             )}

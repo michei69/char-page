@@ -37,30 +37,32 @@ export default class Character {
     name: string = ""
     quote: string = ""
     tags: string[] = []
-    traits: {
-        [label: string]: string
-    } = {}
+    traits: Array<{
+        label: string
+        text: string,
+    }> = []
     description: string = ""
     colorPalette: Array<{
         hex: string,
         label: string
     }> = []
-    stats: {
-        [label: string]: {
-            type: "BAR" | "TEXT" | string,
-            // bar
-            min?: number,
-            max?: number,
-            // bar || text
-            value?: number | string
-        }
-    } = {}
-    songs: {
-        [title: string]: string
-    } = {}
-    albums: {
-        [title: string]: Array<ImageData>
-    } = {}
+    stats: Array<{
+        label: string
+        type: "BAR" | "TEXT" | string,
+        // bar
+        min?: number,
+        max?: number,
+        // bar || text
+        value?: number | string,
+    }> = []
+    songs: Array<{
+        title: string,
+        link: string,
+    }> = []
+    albums: Array<{
+        title: string,
+        images: Array<ImageData>
+    }> = []
     story: string = ""
     creatorNote: string = ""
     moodBoard: Array<ImageData> = []
@@ -89,24 +91,22 @@ export default class Character {
         details: string
     }>> = []
     lifeStages: Array<ImageData> = []
-    attributes: {
-        [label: string]: {
-            leftSide: string,
-            rightSide: string,
-            value: number
-        }
-    } = {}
+    attributes: Array<{
+        label: string
+        leftSide: string,
+        rightSide: string,
+        value: number
+    }> = []
     trivia: Array<TriviaQuestion> = []
-    alignments: {
-        [label: string]: {
-            top: string,
-            bottom: string,
-            left: string,
-            right: string,
-            x: number,
-            y: number
-        }
-    } = {}
+    alignments: Array<{
+        label: string,
+        top: string,
+        bottom: string,
+        left: string,
+        right: string,
+        x: number,
+        y: number
+    }> = []
     mature: boolean = false
     original: boolean = true
     fandom: boolean = false

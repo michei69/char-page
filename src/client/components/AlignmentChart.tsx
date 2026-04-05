@@ -1,3 +1,5 @@
+import { useRef } from "react";
+
 export default function AlignmentChart({
     leftSide,
     rightSide,
@@ -13,14 +15,42 @@ export default function AlignmentChart({
     bottomSide: string;
     x?: number;
     y?: number;
-    handleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+    handleClick?: (percentX: number, percentY: number) => void;
 }) {
+    const root = useRef<HTMLDivElement>(null);
+    const fire = useRef<boolean>(false);
     return (
         <div>
             <p className="text-center mb-0.5">{topSide}</p>
             <div
+                ref={root}
                 className="darker-background border-white rounded-xl w-72 h-72 aspect-square"
-                onClick={handleClick}
+                onClick={(e) => {
+                    if (!root.current) return;
+                    const box = root.current.getBoundingClientRect();
+                    const x = e.clientX - box.left;
+                    const y = e.clientY - box.bottom;
+                    const percentX = (x / box.width) * 10;
+                    const percentY = -(y / box.height) * 10;
+                    handleClick(percentX, percentY);
+                }}
+                onMouseDown={() => {
+                    fire.current = true;
+                }}
+                onMouseMove={(e) => {
+                    if (!fire.current) return;
+                    if (!root.current) return;
+
+                    const box = root.current.getBoundingClientRect();
+                    const x = e.clientX - box.left;
+                    const y = e.clientY - box.bottom;
+                    const percentX = (x / box.width) * 10;
+                    const percentY = -(y / box.height) * 10;
+                    handleClick(percentX, percentY);
+                }}
+                onMouseUp={() => {
+                    fire.current = false;
+                }}
             >
                 <p
                     className="text-right relative h-0"

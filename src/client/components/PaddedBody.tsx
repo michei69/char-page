@@ -10,7 +10,10 @@ export default function PaddedBody({
     style?: CSSProperties;
 }) {
     return (
-        <div className={`mr-auto ml-auto p-16 ${className}`} style={style}>
+        <div
+            className={`mr-auto ml-auto p-16 sm:pl-1 sm:pr-1 ${className}`}
+            style={style}
+        >
             {children}
         </div>
     );

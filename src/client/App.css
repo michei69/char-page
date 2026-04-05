@@ -21,8 +21,22 @@ section {
 }
 
 .padded {
-  padding-left: 25vw;
-  padding-right: 25vw;
+  padding-left: 20vw;
+  padding-right: 20vw;
+}
+
+@media (aspect-ratio <=1.6) {
+  .padded {
+    padding-left: 10vw !important;
+    padding-right: 10vw !important;
+  }
+}
+
+@media (aspect-ratio <=1) {
+  .padded {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+  }
 }
 
 img.thumb {

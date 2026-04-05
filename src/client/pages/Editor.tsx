@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { memo, useEffect, useRef, useState } from "react";
-import { createPath, useParams } from "react-router";
+import { useParams } from "react-router";
 import Character from "../lib/CharacterState";
 import LoadingTemplate from "../components/LoadingTemplate";
 import PaddedBody from "../components/PaddedBody";
@@ -9,6 +9,8 @@ import EditorInput from "../components/EditorInput";
 import EditorCheckbox from "../components/EditorCheckbox";
 import EditorTrait from "../components/EditorTrait";
 import traits from "../data/traits.json";
+import stats from "../data/stats.json";
+import attributes from "../data/attributes.json";
 import alignments from "../data/alignment.json";
 import featuredInCategories from "../data/featuredInCategories.json";
 import EditorStat from "../components/EditorStat";
@@ -25,6 +27,12 @@ import "croppie/croppie.css";
 import { Loader2, RefreshCw } from "lucide-react";
 
 const char = proxy({} as Character);
+const slidersData: {
+    [key: string]: {
+        left: string;
+        right: string;
+    };
+} = Object.values(attributes).reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
 const HeaderPreview = memo(() => {
     const snap = useSnapshot(char);
@@ -82,37 +90,41 @@ const HeaderPreview = memo(() => {
 
 const TagsList = memo(() => {
     const snap = useSnapshot(char);
+
     return snap.tags.map((tag, idx) => (
         <span
             key={idx}
             onClick={() => (char.tags = char.tags.filter((t) => t != tag))}
-            className="p-4 pt-1 pb-1.5 rounded-xl dark-background select-none cursor-pointer"
+            className="p-4 pt-1 pb-1.5 rounded-xl dark-background select-none cursor-pointer hover:brightness-60 transition-all"
         >
             {tag}
         </span>
     ));
 });
 
-const TraitStuff = memo(() => {
+const TraitStuff = () => {
     const snap = useSnapshot(char);
     return (
         <>
             {snap.traits &&
-                Object.keys(snap.traits).map((key, idx) => (
-                    <EditorTrait
-                        key={idx}
-                        traits={snap.traits}
-                        setTraits={(val) => {
-                            char.traits = val;
-                        }}
-                        traitName={key}
-                        traitValue={snap.traits[key] + ""}
-                        options={traits}
-                    />
-                ))}
+                snap.traits.map((trait, idx) => {
+                    return (
+                        <EditorTrait
+                            key={`trait-${trait.label}-${idx}`}
+                            traits={char.traits}
+                            setTraits={(val) => {
+                                char.traits = val;
+                            }}
+                            traitName={snap.traits[idx].label}
+                            traitValue={snap.traits[idx].text + ""}
+                            options={traits}
+                            idx={idx}
+                        />
+                    );
+                })}
             <hr className="text-gray-600 w-full" />
             <EditorTrait
-                traits={snap.traits}
+                traits={char.traits}
                 setTraits={(val) => {
                     char.traits = val;
                 }}
@@ -123,20 +135,20 @@ const TraitStuff = memo(() => {
             />
         </>
     );
-});
+};
 
 const StatsList = memo(() => {
     const snap = useSnapshot(char);
     return (
         snap.stats &&
-        Object.keys(snap.stats).map((key, idx) => (
+        snap.stats.map((_, idx) => (
             <EditorStat
-                key={idx}
-                stats={snap.stats}
+                key={`stat-${snap.stats[idx].label}-${idx}`}
+                stats={snap.stats as any}
                 setStats={(val) => {
                     char.stats = val;
                 }}
-                idx={key}
+                idx={idx}
             />
         ))
     );
@@ -146,17 +158,18 @@ const AttributesList = memo(() => {
     const snap = useSnapshot(char);
     return (
         snap.attributes &&
-        Object.keys(snap.attributes).map((key, idx) => (
+        snap.attributes.map((_, idx) => (
             <EditorSlider
-                key={idx}
-                attributes={snap.attributes}
+                key={`attr-${snap.attributes[idx].label}-${idx}`}
+                attributes={char.attributes}
                 setAttributes={(val) => {
                     char.attributes = val;
                 }}
-                value={snap.attributes[key].value}
-                name={key}
-                leftSide={snap.attributes[key].leftSide}
-                rightSide={snap.attributes[key].rightSide}
+                value={snap.attributes[idx].value}
+                name={snap.attributes[idx].label}
+                leftSide={snap.attributes[idx].leftSide}
+                rightSide={snap.attributes[idx].rightSide}
+                idx={idx}
             />
         ))
     );
@@ -166,20 +179,21 @@ const AlignmentsList = memo(() => {
     const snap = useSnapshot(char);
     return (
         snap.alignments &&
-        Object.keys(snap.alignments).map((key, idx) => (
+        snap.alignments.map((_, idx) => (
             <EditorAlignmentChart
                 key={idx}
-                alignments={snap.alignments}
+                alignments={char.alignments}
                 setAlignments={(val) => {
                     char.alignments = val;
                 }}
-                name={key}
-                leftSide={snap.alignments[key].left}
-                rightSide={snap.alignments[key].right}
-                topSide={snap.alignments[key].top}
-                bottomSide={snap.alignments[key].bottom}
-                x={snap.alignments[key].x}
-                y={snap.alignments[key].y}
+                name={snap.alignments[idx].label}
+                idx={idx}
+                leftSide={snap.alignments[idx].left}
+                rightSide={snap.alignments[idx].right}
+                topSide={snap.alignments[idx].top}
+                bottomSide={snap.alignments[idx].bottom}
+                x={snap.alignments[idx].x}
+                y={snap.alignments[idx].y}
             />
         ))
     );
@@ -191,7 +205,7 @@ const RelationsList = memo(() => {
         snap.relations &&
         snap.relations.map((relation, idx) => (
             <EditorRelation
-                key={idx}
+                key={`relation-${relation.charId}-${idx}`}
                 relations={snap.relations as Character["relations"]}
                 setRelations={(relations) => {
                     char.relations = relations;
@@ -210,7 +224,9 @@ const FeaturedInList = memo(() => {
     return (
         snap.featuredIn &&
         snap.featuredIn.map((feature, idx) => (
+            // todo: move this to separate component so i can add move
             <div
+                // key={`feature-${feature.title}-${idx}`}
                 key={idx}
                 className="flex flex-row gap-2 w-full items-center justify-center"
             >
@@ -264,6 +280,7 @@ const TimelineList = memo(() => {
         snap.timeline &&
         snap.timeline.map((entry, idx) => {
             return (
+                // todo: move this to separate component so i can add move
                 <div
                     key={idx}
                     className="flex flex-row gap-2 w-full items-center justify-center"
@@ -296,24 +313,14 @@ const TimelineList = memo(() => {
                         placeholder="Description"
                     />
                     <input
-                        type="text"
-                        className="cute-border-visible p-2 rounded-xl w-full"
-                        value={
-                            (entry.date != ""
-                                ? new Date(
-                                      entry.date as string | Date,
-                                  ).toISOString()
-                                : "") + ""
-                        }
+                        type="datetime-local"
+                        value={new Date(entry.date + "")
+                            .toISOString()
+                            .slice(0, 16)}
                         onChange={(e) => {
-                            const newTimeline = [...char.timeline];
-                            newTimeline[idx] = {
-                                ...newTimeline[idx],
-                                date: new Date(e.target.value),
-                            };
-                            char.timeline = newTimeline;
+                            char.timeline[idx].date =
+                                e.target.valueAsDate?.toISOString();
                         }}
-                        placeholder="Date"
                     />
                     <input
                         type="text"
@@ -364,7 +371,8 @@ const ColorPaletteList = memo(() => {
     const snap = useSnapshot(char);
     return (
         snap.colorPalette &&
-        Object.entries(snap.colorPalette).map(([key, val], idx) => (
+        snap.colorPalette.map((_, idx) => (
+            // todo: move this to separate component so i can add move
             <div
                 key={idx}
                 className="flex flex-row gap-2 w-full items-center justify-center"
@@ -372,39 +380,35 @@ const ColorPaletteList = memo(() => {
                 <input
                     type="text"
                     className="p-2 rounded-xl w-full cute-border-visible"
-                    value={val.label}
-                    onChange={(e) =>
-                        (char.colorPalette = {
-                            ...char.colorPalette,
-                            [key]: {
-                                ...val,
-                                label: e.target.value,
-                            },
-                        })
-                    }
+                    value={snap.colorPalette[idx].label}
+                    onChange={(e) => {
+                        const newColorPalette = [...char.colorPalette];
+                        newColorPalette[idx] = {
+                            ...newColorPalette[idx],
+                            label: e.target.value,
+                        };
+                        char.colorPalette = newColorPalette;
+                    }}
                 />
                 <input
                     type="color"
                     className="p-2 rounded-xl w-full h-12"
-                    value={val.hex}
-                    onChange={(e) =>
-                        (char.colorPalette = {
-                            ...char.colorPalette,
-                            [key]: {
-                                ...val,
-                                hex: e.target.value,
-                            },
-                        })
-                    }
+                    value={snap.colorPalette[idx].hex}
+                    onChange={(e) => {
+                        const newColorPalette = [...char.colorPalette];
+                        newColorPalette[idx] = {
+                            ...newColorPalette[idx],
+                            hex: e.target.value,
+                        };
+                        char.colorPalette = newColorPalette;
+                    }}
                 />
                 <button
                     className="cute-border-visible p-2 rounded-xl"
                     onClick={() => {
-                        const newColorPalette = {
-                            ...char.colorPalette,
-                        };
-                        delete newColorPalette[key as any];
-                        char.colorPalette = newColorPalette;
+                        char.colorPalette = char.colorPalette.filter(
+                            (_, i) => i !== idx,
+                        );
                     }}
                 >
                     X
@@ -416,8 +420,8 @@ const ColorPaletteList = memo(() => {
 
 export default function Editor() {
     const params = useParams() as { id: string };
-    // const snap = useSnapshot(char);
     const [loading, setLoading] = useState(true);
+    const [chars, setChars] = useState([] as Character[]);
 
     useEffect(() => {
         setLoading(true);
@@ -435,12 +439,11 @@ export default function Editor() {
                     );
                     console.log(ch);
                     if (ch.stats) {
-                        const temp = Object.entries(ch.stats).sort(
+                        ch.stats = ch.stats.sort(
                             (a, b) =>
-                                (a[1].type === "TEXT" ? 1 : -1) -
-                                (b[1].type === "TEXT" ? 1 : -1),
+                                (a.type === "TEXT" ? 1 : -1) -
+                                (b.type === "TEXT" ? 1 : -1),
                         );
-                        ch.stats = Object.fromEntries(temp);
                     }
                     // setChar(char);
                     Object.assign(char, ch);
@@ -452,6 +455,9 @@ export default function Editor() {
                     setLoading(false);
                 });
         }
+        fetch(`${API_BASE_URL}/api/characters`)
+            .then((res) => res.json())
+            .then((data) => setChars(data.data));
     }, [params]);
 
     useEffect(() => {
@@ -589,7 +595,10 @@ export default function Editor() {
                         <div className="flex flex-row gap-1">
                             <button
                                 onClick={() => {
-                                    if (char.id != params.id) {
+                                    if (
+                                        char.id != params.id &&
+                                        params.id != "new"
+                                    ) {
                                         fetch(
                                             `${API_BASE_URL}/api/character/${params.id}`,
                                             {
@@ -856,9 +865,21 @@ export default function Editor() {
                             <select
                                 value={temp2}
                                 onChange={(e) => setTemp2(e.target.value)}
+                                className="text-black invert"
                             >
                                 <option value="BAR">Bar</option>
                                 <option value="TEXT">Text</option>
+                            </select>
+                            <select
+                                value={temp3}
+                                onChange={(e) => setTemp3(e.target.value)}
+                                className="text-black invert"
+                            >
+                                {stats.map((val, idx) => (
+                                    <option key={idx} value={val}>
+                                        {camelCaseToReadable(val)}
+                                    </option>
+                                ))}
                             </select>
                             <input
                                 type="text"
@@ -868,15 +889,13 @@ export default function Editor() {
                             />
                             <button
                                 onClick={() => {
-                                    char.stats = {
-                                        ...char.stats,
-                                        [temp3]: {
-                                            value: "",
-                                            type: temp2,
-                                            min: 0,
-                                            max: 100,
-                                        },
-                                    };
+                                    char.stats.push({
+                                        label: temp3,
+                                        value: "",
+                                        type: temp2,
+                                        min: 0,
+                                        max: 100,
+                                    });
                                 }}
                             >
                                 Add
@@ -887,6 +906,27 @@ export default function Editor() {
                         <AttributesList />
                         <hr className="text-gray-600 w-full" />
                         <div className="flex flex-row gap-2 w-full">
+                            <select
+                                value={temp4}
+                                onChange={(e) => {
+                                    setTemp4(e.target.value);
+                                    setTemp5(
+                                        slidersData[e.target.value as string]
+                                            .left,
+                                    );
+                                    setTemp6(
+                                        slidersData[e.target.value as string]
+                                            .right,
+                                    );
+                                }}
+                                className="text-black invert"
+                            >
+                                {Object.keys(slidersData).map((val, idx) => (
+                                    <option key={idx} value={val}>
+                                        {camelCaseToReadable(val)}
+                                    </option>
+                                ))}
+                            </select>
                             <input
                                 type="text"
                                 className="cute-border-visible p-2 rounded-xl w-full"
@@ -910,14 +950,12 @@ export default function Editor() {
                             />
                             <button
                                 onClick={() => {
-                                    char.attributes = {
-                                        ...char.attributes,
-                                        [temp4]: {
-                                            value: 50,
-                                            leftSide: temp5,
-                                            rightSide: temp6,
-                                        },
-                                    };
+                                    char.attributes.push({
+                                        label: temp4,
+                                        value: 50,
+                                        leftSide: temp5,
+                                        rightSide: temp6,
+                                    });
                                 }}
                             >
                                 Add
@@ -929,7 +967,7 @@ export default function Editor() {
                         <hr className="text-gray-600 w-full" />
                         <div className="flex flex-col gap-1">
                             <select
-                                className="cute-border-visible rounded-2xl p-4"
+                                className="cute-border-visible rounded-2xl p-4 text-black invert"
                                 value={temp7}
                                 onChange={(e) => {
                                     setTemp7(e.target.value);
@@ -1005,17 +1043,15 @@ export default function Editor() {
                                 />
                                 <button
                                     onClick={() => {
-                                        char.alignments = {
-                                            ...char.alignments,
-                                            [temp7]: {
-                                                top: temp8,
-                                                bottom: temp9,
-                                                left: temp10,
-                                                right: temp11,
-                                                x: temp12,
-                                                y: temp13,
-                                            },
-                                        };
+                                        char.alignments.push({
+                                            label: temp7,
+                                            top: temp8,
+                                            bottom: temp9,
+                                            left: temp10,
+                                            right: temp11,
+                                            x: temp12,
+                                            y: temp13,
+                                        });
                                     }}
                                 >
                                     Add
@@ -1027,6 +1063,20 @@ export default function Editor() {
                         <RelationsList />
                         <hr className="text-gray-600 w-full" />
                         <div className="flex flex-row gap-2 w-full">
+                            <select
+                                className="text-black invert"
+                                onChange={(e) => {
+                                    setTemp14(
+                                        (e.target as HTMLSelectElement).value,
+                                    );
+                                }}
+                            >
+                                {chars.map((char, idx) => (
+                                    <option key={idx} value={char.id}>
+                                        {char.name}
+                                    </option>
+                                ))}
+                            </select>
                             <input
                                 type="text"
                                 className="cute-border-visible p-2 rounded-xl w-full"
@@ -1036,14 +1086,11 @@ export default function Editor() {
                             />
                             <button
                                 onClick={() => {
-                                    char.relations = [
-                                        ...char.relations,
-                                        {
-                                            charId: temp14,
-                                            relation: "",
-                                            description: "",
-                                        },
-                                    ];
+                                    char.relations.push({
+                                        charId: temp14,
+                                        relation: "",
+                                        description: "",
+                                    });
                                 }}
                             >
                                 Add
@@ -1055,7 +1102,7 @@ export default function Editor() {
                         <hr className="text-gray-600 w-full" />
                         <div className="flex flex-row gap-2 w-full">
                             <select
-                                className="cute-border-visible p-2 rounded-xl w-full"
+                                className="cute-border-visible p-2 rounded-xl w-full text-black invert"
                                 value={temp15}
                                 onChange={(e) => setTemp15(e.target.value)}
                             >
@@ -1067,17 +1114,10 @@ export default function Editor() {
                             </select>
                             <button
                                 onClick={() => {
-                                    // @ts-ignore
-                                    setChar({
-                                        ...char,
-                                        featuredIn: [
-                                            ...char.featuredIn,
-                                            {
-                                                type: temp15,
-                                                title: "",
-                                                link: "",
-                                            },
-                                        ],
+                                    char.featuredIn.push({
+                                        type: temp15,
+                                        title: "",
+                                        link: "",
                                     });
                                 }}
                             >
@@ -1122,13 +1162,10 @@ export default function Editor() {
                             />
                             <button
                                 onClick={() => {
-                                    char.colorPalette = {
-                                        ...char.colorPalette,
-                                        [temp16]: {
-                                            hex: temp17,
-                                            label: temp16,
-                                        },
-                                    };
+                                    char.colorPalette.push({
+                                        hex: temp17,
+                                        label: temp16,
+                                    });
                                 }}
                             >
                                 Add
@@ -1148,15 +1185,12 @@ export default function Editor() {
                             />
                             <button
                                 onClick={() => {
-                                    char.timeline = [
-                                        ...char.timeline,
-                                        {
-                                            title: temp18,
-                                            description: "",
-                                            date: "",
-                                            timeReference: "",
-                                        },
-                                    ];
+                                    char.timeline.push({
+                                        title: temp18,
+                                        description: "",
+                                        date: new Date(0).toISOString(),
+                                        timeReference: "",
+                                    });
                                 }}
                             >
                                 Add

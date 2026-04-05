@@ -1,11 +1,14 @@
 import { useState } from "react";
 import Character from "../lib/CharacterState";
 import CharAlignment from "./CharAlignment";
+import { moveInArray } from "../lib/Utils";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 export default function EditorAlignmentChart({
     alignments,
     setAlignments,
     name,
+    idx,
     leftSide,
     rightSide,
     topSide,
@@ -15,6 +18,7 @@ export default function EditorAlignmentChart({
 }: {
     alignments: Character["alignments"];
     setAlignments: (alignments: Character["alignments"]) => void;
+    idx: number;
     name: string;
     leftSide: string;
     rightSide: string;
@@ -50,13 +54,12 @@ export default function EditorAlignmentChart({
                         value={tempTop}
                         onChange={(e) => {
                             setTempTop(e.target.value);
-                            setAlignments({
-                                ...alignments,
-                                [name]: {
-                                    ...alignments[name],
-                                    top: e.target.value,
-                                },
-                            });
+                            // const alignment = [...alignments];
+                            alignments[idx] = {
+                                ...alignments[idx],
+                                top: e.target.value,
+                            };
+                            setAlignments(alignments);
                         }}
                     />
                     <p>Left Side</p>
@@ -66,13 +69,12 @@ export default function EditorAlignmentChart({
                         value={leftSide}
                         onChange={(e) => {
                             setTempLeft(e.target.value);
-                            setAlignments({
-                                ...alignments,
-                                [name]: {
-                                    ...alignments[name],
-                                    left: e.target.value,
-                                },
-                            });
+                            // const alignment = [...alignments];
+                            alignments[idx] = {
+                                ...alignments[idx],
+                                left: e.target.value,
+                            };
+                            setAlignments(alignments);
                         }}
                     />
                     <p>X</p>
@@ -82,13 +84,12 @@ export default function EditorAlignmentChart({
                         value={x}
                         onChange={(e) => {
                             setTempX(parseInt(e.target.value));
-                            setAlignments({
-                                ...alignments,
-                                [name]: {
-                                    ...alignments[name],
-                                    x: parseInt(e.target.value),
-                                },
-                            });
+                            // const alignment = [...alignments];
+                            alignments[idx] = {
+                                ...alignments[idx],
+                                x: parseFloat(e.target.value),
+                            };
+                            setAlignments(alignments);
                         }}
                     />
                 </div>
@@ -100,13 +101,13 @@ export default function EditorAlignmentChart({
                         value={rightSide}
                         onChange={(e) => {
                             setTempRight(e.target.value);
-                            setAlignments({
-                                ...alignments,
-                                [name]: {
-                                    ...alignments[name],
-                                    right: e.target.value,
-                                },
-                            });
+
+                            // const alignment = [...alignments];
+                            alignments[idx] = {
+                                ...alignments[idx],
+                                right: e.target.value,
+                            };
+                            setAlignments(alignments);
                         }}
                     />
                     <p>Bottom Side</p>
@@ -116,13 +117,13 @@ export default function EditorAlignmentChart({
                         value={bottomSide}
                         onChange={(e) => {
                             setTempBottom(e.target.value);
-                            setAlignments({
-                                ...alignments,
-                                [name]: {
-                                    ...alignments[name],
-                                    bottom: e.target.value,
-                                },
-                            });
+
+                            // const alignment = [...alignments];
+                            alignments[idx] = {
+                                ...alignments[idx],
+                                bottom: e.target.value,
+                            };
+                            setAlignments(alignments);
                         }}
                     />
                     <p>Y</p>
@@ -132,13 +133,13 @@ export default function EditorAlignmentChart({
                         value={y}
                         onChange={(e) => {
                             setTempY(parseInt(e.target.value));
-                            setAlignments({
-                                ...alignments,
-                                [name]: {
-                                    ...alignments[name],
-                                    y: parseInt(e.target.value),
-                                },
-                            });
+
+                            // const alignment = [...alignments];
+                            alignments[idx] = {
+                                ...alignments[idx],
+                                y: parseFloat(e.target.value),
+                            };
+                            setAlignments(alignments);
                         }}
                     />
                 </div>
@@ -151,36 +152,63 @@ export default function EditorAlignmentChart({
                 bottomSide={tempBottom}
                 x={tempX}
                 y={tempY}
-                handleClick={(e: React.MouseEvent<HTMLDivElement>) => {
-                    const box = (
-                        e.target as HTMLDivElement
-                    ).getBoundingClientRect();
-                    const x = e.clientX - box.left;
-                    const y = e.clientY - box.bottom;
-                    const percentX = (x / box.width) * 10;
-                    const percentY = -(y / box.height) * 10;
+                handleClick={(percentX: number, percentY: number) => {
                     setTempX(Math.round(percentX * 100) / 100);
                     setTempY(Math.round(percentY * 100) / 100);
-                    setAlignments({
-                        ...alignments,
-                        [name]: {
-                            ...alignments[name],
-                            x: Math.round(percentX * 100) / 100,
-                            y: Math.round(percentY * 100) / 100,
-                        },
-                    });
+                    alignments[idx] = {
+                        ...alignments[idx],
+                        x: Math.round(percentX * 100) / 100,
+                        y: Math.round(percentY * 100) / 100,
+                    };
+                    setAlignments(alignments);
                 }}
             />
-            <button
-                className="mt-2 w-full p-2 rounded-xl bg-primary text-white font-bold cute-border-visible"
-                onClick={() => {
-                    const newAlignments = { ...alignments };
-                    delete newAlignments[name];
-                    setAlignments(newAlignments);
-                }}
-            >
-                Delete
-            </button>
+            <div className="flex flex-row items-center gap-1">
+                <div className="flex flex-col">
+                    <button
+                        className="p-0!"
+                        onClick={() => {
+                            const newAlignments = [...alignments];
+                            if (idx == 0) {
+                                newAlignments.push(alignments[idx]);
+                                setAlignments(newAlignments.slice(idx + 1));
+                            } else {
+                                setAlignments(
+                                    moveInArray(newAlignments, idx, idx - 1),
+                                );
+                            }
+                        }}
+                    >
+                        <ArrowUp />
+                    </button>
+                    <button
+                        className="p-0!"
+                        onClick={() => {
+                            const newAlignments = [...alignments];
+                            if (idx >= newAlignments.length - 1) {
+                                setAlignments([
+                                    alignments[idx],
+                                    ...newAlignments.slice(0, idx),
+                                ]);
+                            } else {
+                                setAlignments(
+                                    moveInArray(newAlignments, idx, idx + 1),
+                                );
+                            }
+                        }}
+                    >
+                        <ArrowDown />
+                    </button>
+                </div>
+                <button
+                    className="mt-2 w-full p-2 rounded-xl bg-primary text-white font-bold cute-border-visible"
+                    onClick={() => {
+                        setAlignments(alignments.filter((_, i) => i !== idx));
+                    }}
+                >
+                    Delete
+                </button>
+            </div>
         </div>
     );
 }

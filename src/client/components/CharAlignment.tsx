@@ -18,7 +18,7 @@ export default function CharAlignment({
     bottomSide: string;
     x?: number;
     y?: number;
-    handleClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+    handleClick?: (percentX: number, percentY: number) => void;
 }) {
     return (
         <div className="w-full flex flex-col gap-2 p-4 dark-accent-border rounded-xl items-center justify-center">

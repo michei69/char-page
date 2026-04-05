@@ -5,15 +5,18 @@ import CharacterPage from "./pages/CharacterPage";
 import "./App.css";
 import Editor from "./pages/Editor";
 import { ToastContainer } from "react-toastify";
+import { ContextMenuProvider } from "./components/ContextMenuContext";
 function App() {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/dev" element={<Dev />} />
-                <Route path="/character/:id" element={<CharacterPage />} />
-                <Route path="/edit/:id" element={<Editor />} />
-            </Routes>
+            <ContextMenuProvider>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/dev" element={<Dev />} />
+                    <Route path="/character/:id" element={<CharacterPage />} />
+                    <Route path="/edit/:id" element={<Editor />} />
+                </Routes>
+            </ContextMenuProvider>
 
             <ToastContainer theme="dark" newestOnTop={true} />
         </BrowserRouter>
