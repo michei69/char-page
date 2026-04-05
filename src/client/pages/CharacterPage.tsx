@@ -56,6 +56,7 @@ export default function CharacterPage() {
                                 data.data,
                             );
                             setRelatedCharacters(related);
+                            console.log(related);
                         });
                 }
                 setChar(char);
@@ -205,7 +206,9 @@ export default function CharacterPage() {
                 <CharSection title="Relations">
                     <div className="flex flex-col justify-center items-center gap-2 mt-2 p-4 pt-0 w-full">
                         {char.relations.map((rel) => (
-                            <>
+                            <div
+                                key={`${rel.charId}-${rel.charId in relatedCharacters}`}
+                            >
                                 {rel.charId in relatedCharacters ? (
                                     <CharRelation
                                         key={rel.charId}
@@ -221,7 +224,7 @@ export default function CharacterPage() {
                                 ) : (
                                     <LoadingTemplate />
                                 )}
-                            </>
+                            </div>
                         ))}
                     </div>
                 </CharSection>
