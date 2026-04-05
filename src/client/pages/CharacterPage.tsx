@@ -22,7 +22,7 @@ export default function CharacterPage() {
     const params = useParams() as { id: string };
     const [char, setChar] = useState({} as Character);
     const [relatedCharacters, setRelatedCharacters] = useState(
-        {} as { [name: string]: Character },
+        {} as { [id: string]: Character },
     );
     const [loading, setLoading] = useState(true);
 
@@ -55,8 +55,7 @@ export default function CharacterPage() {
                                 new Character(),
                                 data.data,
                             );
-                            setRelatedCharacters(related);
-                            console.log(related);
+                            setRelatedCharacters({ ...related });
                         });
                 }
                 setChar(char);
@@ -205,27 +204,23 @@ export default function CharacterPage() {
             {char.relations && char.relations.length > 0 && (
                 <CharSection title="Relations">
                     <div className="flex flex-col justify-center items-center gap-2 mt-2 p-4 pt-0 w-full">
-                        {char.relations.map((rel) => (
-                            <div
-                                key={`${rel.charId}-${rel.charId in relatedCharacters}`}
-                            >
-                                {rel.charId in relatedCharacters ? (
-                                    <CharRelation
-                                        key={rel.charId}
-                                        name={
-                                            relatedCharacters[rel.charId].name
-                                        }
-                                        otherPfpUrl={
-                                            relatedCharacters[rel.charId].pfpUrl
-                                        }
-                                        relation={rel.relation}
-                                        description={rel.description}
-                                    />
-                                ) : (
-                                    <LoadingTemplate />
-                                )}
-                            </div>
-                        ))}
+                        {char.relations.map((rel) =>
+                            rel.charId in relatedCharacters ? (
+                                <CharRelation
+                                    key={`${rel.charId}-${rel.charId in relatedCharacters}`}
+                                    name={relatedCharacters[rel.charId].name}
+                                    otherPfpUrl={
+                                        relatedCharacters[rel.charId].pfpUrl
+                                    }
+                                    relation={rel.relation}
+                                    description={rel.description}
+                                />
+                            ) : (
+                                <LoadingTemplate
+                                    key={`${rel.charId}-${rel.charId in relatedCharacters}`}
+                                />
+                            ),
+                        )}
                     </div>
                 </CharSection>
             )}
