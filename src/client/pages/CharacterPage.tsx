@@ -31,6 +31,7 @@ export default function CharacterPage() {
     useEffect(() => {
         setLoading(true);
         setRelatedCharacters({});
+        const related = {} as any;
         fetch(`${API_BASE_URL}/api/character/${params.id}`)
             .then((response) => response.json())
             .then((data) => {
@@ -50,12 +51,11 @@ export default function CharacterPage() {
                     fetch(`${API_BASE_URL}/api/character/${ch.charId}`)
                         .then((response) => response.json())
                         .then((data) => {
-                            const temp = Object.assign({}, relatedCharacters);
-                            temp[ch.charId] = Object.assign(
+                            related[ch.charId] = Object.assign(
                                 new Character(),
                                 data.data,
                             );
-                            setRelatedCharacters(temp);
+                            setRelatedCharacters(related);
                         });
                 }
                 setChar(char);
